@@ -12,19 +12,22 @@ import java.util.regex.Pattern;
 
 class text_checker {
 	List<String> textList = new ArrayList<String>();
+	List<Double> priceList = new ArrayList<Double>();
 	private String text;
 	private Date date = null;
 	private String cost = null;
 	private String element = null;
 
 	public static void main(String[] args) {
-		List<String> test = Arrays.asList("01-20-2017", "asdfklj$1.50");
+		List<String> test = Arrays.asList("01-20-2017", "asdfklj$1.50", "asdajfkhasdkjfh0000015.66", "50", "500", "50000", "5.00");
 		text_checker example = new text_checker (test);
 		String tempString;
 		for(Iterator<String> i = example.getList().iterator(); i.hasNext(); ) {
 			tempString = i.next();
-		    example.checkCategory(tempString);
+		    //example.checkCategory(tempString);
+		    example.checkPrice(tempString);
 		}		
+		System.out.print(example.getPriceList());
 	}
 
 	public text_checker(List<String> input) {
@@ -33,6 +36,10 @@ class text_checker {
 	
 	public List<String> getList () {
 		return textList;
+	}
+
+	public List<Double> getPriceList () {
+		return priceList;
 	}
 
 	private void checkCategory(String inputText) {
@@ -81,7 +88,6 @@ class text_checker {
 			}
 		}
 		else {
-			
 			for (Locale locale : DateFormat.getAvailableLocales()) {
 			    for (int style =  DateFormat.FULL; style <= DateFormat.SHORT; style ++) {
 			        DateFormat df = DateFormat.getDateInstance(style, locale);
@@ -107,28 +113,27 @@ class text_checker {
 	}
 
 	private Boolean checkPrice(String text) {
-		if (text.contains("$")) {
-			int index = text.indexOf("$");
-			text = text.substring(index + 1, text.length());
-			cost = "$";
-			while (Character.isDigit(text.charAt(0)) || text.charAt(0) == '.') {
-				cost = cost + text.charAt(0);
-				if (text.length() > 1)
-					text = text.substring(1, text.length());
-				else {
-					text = "";
-					break;
-				}
+		//Pattern priceFormat = Pattern.compile("\\d\\p(.)\\d\\d");
+		// text.length() - 4
+		//Matcher priceSearch = priceFormat.matcher(text);
+		int index = text.length() - 4; //old code
+		
+		//if (priceSearch.find())
+		// ((text.charAt(index - 1) == ' ' && text.charAt(index - 2) == '$') || text.charAt(index - 1) == '$') && 
+		if (text.length() >= 4 && Character.isDigit(text.charAt(index)) && Character.isDigit(text.charAt(index+2)) && Character.isDigit(text.charAt(index+3)) && text.charAt(index+1) == '.') 
+		{
+			for (; (index - 1) >= 0 && Character.isDigit(text.charAt(index - 1)); index--) 
+			{
 			}
-			if (text.length() != 0) {
-				if (text.charAt(0) != ' ') {
-					text = null;
-					return true;
-				}
-			}
-			return true;
+				cost = text.substring(index, text.length());
+				priceList.add(Double.parseDouble(cost));
+				System.out.println(cost);
+				return true;	
 		}
-		return false;
+		else 
+		{
+			return false;
+		}	
 	}
 
 	private Boolean checkSubtotal(String text) {
