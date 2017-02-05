@@ -1,0 +1,36 @@
+    //saveData has no parameters, saves counter to a file named save_data in the internal drive
+    public void saveData(Context context) {
+        String filename = "save_data";
+
+        try{
+            FileOutputStream fos = openFileOutput(filename,MODE_PRIVATE);
+            fos.write(Integer.toString(counter).getBytes());
+            fos.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //readData opens the file "save_data" in the internal drive if it exists, reads the file and returns
+    //counter's value from save_data. If save_data does not exist, this function returns 0.
+    public int readData(Context context){
+        String counterWrite;
+        int counterRead = 0;
+
+        try{
+            InputStream fis = openFileInput("save_data");
+            InputStreamReader inputStreamReader = new InputStreamReader(fis);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            counterWrite = bufferedReader.readLine();
+
+            counterRead = Integer.parseInt(counterWrite);
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return counterRead;
+
+    }
