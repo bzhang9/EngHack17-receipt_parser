@@ -4,27 +4,53 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class text_checker {
 	List<String> textList = new ArrayList<String>();
+        List<Double> priceList = new ArrayList<Double>();
 	private String text;
 	private Date date = null;
 	private String cost = null;
 	private String element = null;
 
 	public static void main(String[] args) {
-		List<String> test = Arrays.asList("01-20-2017", "asdfklj$1.50");
-		text_checker example = new text_checker (test);
+                String str =  "xd xd 123 2.78 xd 123 xd 2.78 303 BUY ONE GET ONE FREE QUARTER POUNDER W/CHEESE OF E G MICMUFFIN Go to www.modvoi m within 7 days and tell us about your visit Validation Co Expires 30 days fter receipt date Valid at participating US McDonald's. 91-19 leen elvd Elllllurst 373 THANK YOLI TEL 718 478 123 Storet 23149 KSH 3 Ict .10 5 (Sat) 11:01 KVS Order 03 CITY ITEM TOTAL 2 2 Apple Pies 2.78 Tax 0.25 Take Cut Total 3.03 Cash Tendered 3.03 Change 0.00 McDonald's Restaurar t";
+        
+                List<String> test = Arrays.asList(str.split("\\s+"));
+                
+                /*
+                for (String i : test){
+                    System.out.println(i);
+                }
+                */                
+                
+                text_checker example = new text_checker (test);
+                HashMap<String,String> map = new HashMap<String,String>();
+                map = example.findItems(test);
+                
+                
+                Set<Entry<String,String>> hashSet = map.entrySet();
+                for (Entry entry : map.entrySet()){
+                       System.out.println(entry.getKey()+ " " + entry.getValue());
+                }
+               
+                
+                
+                /*
 		String tempString;
 		for(Iterator<String> i = example.getList().iterator(); i.hasNext(); ) {
 			tempString = i.next();
 		    example.checkCategory(tempString);
-		}		
+		}	
+                */
 	}
 
 	public text_checker(List<String> input) {
@@ -107,29 +133,27 @@ class text_checker {
 	}
 
 	private Boolean checkPrice(String text) {
-		if (text.contains("$")) {
-			int index = text.indexOf("$");
-			text = text.substring(index + 1, text.length());
-			cost = "$";
-			while (Character.isDigit(text.charAt(0)) || text.charAt(0) == '.') {
-				cost = cost + text.charAt(0);
-				if (text.length() > 1)
-					text = text.substring(1, text.length());
-				else {
-					text = "";
-					break;
-				}
+		//Pattern priceFormat = Pattern.compile("\\d\\p(.)\\d\\d");
+		// text.length() - 4
+		//Matcher priceSearch = priceFormat.matcher(text);
+		int index = text.length() - 4; //old code
+		
+		//if (priceSearch.find())
+		// ((text.charAt(index - 1) == ' ' && text.charAt(index - 2) == '$') || text.charAt(index - 1) == '$') && 
+		if (text.length() >= 4 && Character.isDigit(text.charAt(index)) && Character.isDigit(text.charAt(index+2)) && Character.isDigit(text.charAt(index+3)) && text.charAt(index+1) == '.') 
+		{
+			for (; (index - 1) >= 0 && Character.isDigit(text.charAt(index - 1)); index--) 
+			{
 			}
-			if (text.length() != 0) {
-				if (text.charAt(0) != ' ') {
-					text = null;
-					return true;
-				}
-			}
-			return true;
+				cost = text.substring(index, text.length());
+				priceList.add(Double.parseDouble(cost));
+				return true;	
 		}
-		return false;
-	}
+		else 
+		{
+			return false;
+		}	
+        }
 
 	private Boolean checkSubtotal(String text) {
 		text = text.toLowerCase();
@@ -139,17 +163,24 @@ class text_checker {
 		return false;
 	}
 	
-	private Boolean checkElement(String text) {
-		return null;
-		
-	}
         
         //Find purchased items and products
-        private List<String> findItems(List<String> text) throws IndexOutOfBoundsException{
-            List<String> items = new ArrayList<String>();
+        private HashMap<String,String> findItems(List<String> text){
+            HashMap<String,String> items = new HashMap<String,String>();
             for (int i = 0; i < text.size();i++){
                     if (checkPrice(text.get(i))){
-                       items.add(text.get(i-1) + text.get(i-2));
+                       try{
+                       if (items.get(text.get(i)) == null){
+                           items.put((text.get(i)),(text.get(i-2) + " " +  text.get(i-1)));
+                       }
+                       else{
+                           items.put((text.get(i)),(text.get(i-2) + " " +  text.get(i-1) + "," + items.get(text.get(i))));
+                       }
+                       }catch(Exception IndexOutOfBoundsError){
+                           
+                       }
+                       
+                       
                     }
             }
             return items;
