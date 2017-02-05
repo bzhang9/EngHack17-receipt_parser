@@ -143,4 +143,15 @@ class text_checker {
 		return null;
 		
 	}
+        
+        //Find purchased items and products
+        private List<String> findItems(List<String> text) throws IndexOutOfBoundsException{
+            List<String> items = new ArrayList<String>();
+            for (int i = 0; i < text.size();i++){
+                    if (checkPrice(text.get(i))){
+                       items.add(text.get(i-1) + text.get(i-2));
+                    }
+            }
+            return items;
+        }
 }
